@@ -1,6 +1,7 @@
 package lesson1
 
 import org.junit.jupiter.api.Assertions.assertArrayEquals
+import org.junit.jupiter.api.Assertions.assertThrows
 import util.PerfResult
 import util.estimate
 import java.io.BufferedWriter
@@ -84,6 +85,21 @@ abstract class AbstractTaskTests : AbstractFileTests() {
             assertFileContent("temp.txt", "")
         } finally {
             File("temp.txt").delete()
+        }
+
+        //myTests
+        try {
+            sortAddresses("input/addr_in4.txt", "temp.txt")
+            assertFileContent("temp.txt", File("input/addr_out4.txt").readLines())
+        } finally {
+            File("temp.txt").delete()
+        }
+
+        assertThrows(IllegalArgumentException::class.java) {
+            sortAddresses("input/addr_in5.txt", "temp.txt")
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            sortAddresses("input/addr_in6.txt", "temp.txt")
         }
     }
 
@@ -298,6 +314,39 @@ abstract class AbstractTaskTests : AbstractFileTests() {
         try {
             sortSequence("input/empty.txt", "temp.txt")
             assertFileContent("temp.txt", "")
+        } finally {
+            File("temp.txt").delete()
+        }
+
+        //myTest
+        try {
+            sortSequence("input/seq_in6.txt", "temp.txt")
+            assertFileContent(
+                "temp.txt",
+                """
+                        2
+                        3
+                        4
+                        5
+                        1
+                    """.trimIndent()
+            )
+        } finally {
+            File("temp.txt").delete()
+        }
+        try {
+            sortSequence("input/seq_in7.txt", "temp.txt")
+            assertFileContent(
+                "temp.txt",
+                """
+                        2
+                        2
+                        2
+                        1
+                        1
+                        1
+                    """.trimIndent()
+            )
         } finally {
             File("temp.txt").delete()
         }

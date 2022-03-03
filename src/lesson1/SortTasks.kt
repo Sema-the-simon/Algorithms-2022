@@ -2,6 +2,9 @@
 
 package lesson1
 
+import java.io.File
+import java.lang.IllegalArgumentException
+
 /**
  * Сортировка времён
  *
@@ -61,9 +64,30 @@ fun sortTimes(inputName: String, outputName: String) {
  * Садовая 5 - Сидоров Петр, Сидорова Мария
  *
  * В случае обнаружения неверного формата файла бросить любое исключение.
+ *
+ * Ресурсоемкость : O(n*log(n)) = O(n*log(n)) + O(n*log(n))
+ * Трудоемкость: O(n)
  */
 fun sortAddresses(inputName: String, outputName: String) {
-    TODO()
+    val map = mutableMapOf<String, MutableList<String>>()
+    for (line in File(inputName).readLines()) {
+        if (!Regex("[А-яёЁ]+ [А-яёЁ]+ - [А-яёЁ-]+ \\d+").matches(line)) throw IllegalArgumentException("$line")
+        val (name, address) = line.split(" - ")
+        val newNames = map.getOrDefault(address, mutableListOf())
+        newNames.add(name)
+        map[address] = newNames
+    }
+    val sortedMap = map.toSortedMap(
+        compareBy<String> { it.split(" ")[0] }.thenBy { it.split(" ")[1].toInt() }) //O(n*log(n))
+    sortedMap.map { it.value.sort() } //O(n*log(n))
+
+    File(outputName).bufferedWriter().use { writer ->
+        for ((address, names) in sortedMap) {
+            val namesToString = names.joinToString(", ")
+            writer.write("$address - $namesToString")
+            writer.newLine()
+        }
+    }
 }
 
 /**
@@ -130,7 +154,30 @@ fun sortTemperatures(inputName: String, outputName: String) {
  * 2
  */
 fun sortSequence(inputName: String, outputName: String) {
-    TODO()
+    val digitsFrequency = mutableMapOf<Int, Int>()
+    val digits = File(inputName).readLines().map { it.toInt() }
+    var max = Int.MAX_VALUE
+    digitsFrequency[max] = 0
+    for (digit in digits) {
+        digitsFrequency[digit] = digitsFrequency.getOrDefault(digit, 0) + 1
+        if (digitsFrequency[digit]!! == digitsFrequency[max]!! && digit < max ||
+            digitsFrequency[digit]!! > digitsFrequency[max]!!
+        )
+            max = digit
+    }
+
+    File(outputName).bufferedWriter().use { writer ->
+        for (digit in digits) {
+            if (digit != max) {
+                writer.write("$digit")
+                writer.newLine()
+            }
+        }
+        for (i in 1..digitsFrequency[max]!!) {
+            writer.write("$max")
+            writer.newLine()
+        }
+    }
 }
 
 /**
