@@ -2,6 +2,8 @@
 
 package lesson2
 
+import kotlin.math.sqrt
+
 /**
  * Получение наибольшей прибыли (она же -- поиск максимального подмассива)
  * Простая
@@ -93,9 +95,32 @@ fun josephTask(menNumber: Int, choiceInterval: Int): Int {
  * При сравнении подстрок, регистр символов *имеет* значение.
  * Если имеется несколько самых длинных общих подстрок одной длины,
  * вернуть ту из них, которая встречается раньше в строке first.
+ *
+ *
+ * трудоемкость O(n * m))
+ * ресурсоемкость O(n * m)
+ * n = first.length m = second.length
  */
 fun longestCommonSubstring(first: String, second: String): String {
-    TODO()
+    var maxLength = 0
+    var maxIndex = 0
+    val matrix = Array(first.length) { Array(second.length) { 0 } }
+    for (i in first.indices) {
+        for (j in second.indices) {
+            if (first[i] == second[j]) {
+                if (i > 0 && j > 0) {
+                    matrix[i][j] = matrix[i - 1][j - 1] + 1
+                    if (matrix[i][j] > maxLength) {
+                        maxLength = matrix[i][j]
+                        maxIndex = i
+                    }
+                } else matrix[i][j] = 1
+            }
+        }
+    }
+    maxIndex++
+    return if (maxLength == 0) ""
+    else first.substring(maxIndex - maxLength, maxIndex)
 }
 
 /**
@@ -107,7 +132,31 @@ fun longestCommonSubstring(first: String, second: String): String {
  *
  * Справка: простым считается число, которое делится нацело только на 1 и на себя.
  * Единица простым числом не считается.
+ *
+ *
+ * Алгоритм - решето Эратосфена
+ * трудоемкость O(n*log(log(n)))
+ * ресурсоемкость O(n)
  */
 fun calcPrimesNumber(limit: Int): Int {
-    TODO()
+    if (limit <= 1) return 0
+    val sqrLimit = sqrt(limit.toDouble()).toInt()
+    val isPrime: Array<Boolean> = Array(limit + 1) { true }
+    isPrime[0] = false
+    isPrime[1] = false
+    var result = isPrime.size - 2
+
+    for (i in 2 until sqrLimit + 1) {
+        if (isPrime[i]) {
+            var j = i
+            while (i * j <= limit) {
+                if (isPrime[i * j]) {
+                    isPrime[i * j] = false
+                    result--
+                }
+                j++
+            }
+        }
+    }
+    return result
 }
