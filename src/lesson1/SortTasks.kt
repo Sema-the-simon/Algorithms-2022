@@ -152,13 +152,16 @@ fun sortTemperatures(inputName: String, outputName: String) {
  * 2
  * 2
  * 2
+ *
+ * Ресурсоемкость : O(n) = O(n) + O(n))
+ * Трудоемкость: O(n)
  */
 fun sortSequence(inputName: String, outputName: String) {
     val digitsFrequency = mutableMapOf<Int, Int>()
     val digits = File(inputName).readLines().map { it.toInt() }
     var max = Int.MAX_VALUE
     digitsFrequency[max] = 0
-    for (digit in digits) {
+    for (digit in digits) { // O(n)
         digitsFrequency[digit] = digitsFrequency.getOrDefault(digit, 0) + 1
         if (digitsFrequency[digit]!! == digitsFrequency[max]!! && digit < max ||
             digitsFrequency[digit]!! > digitsFrequency[max]!!
@@ -166,7 +169,7 @@ fun sortSequence(inputName: String, outputName: String) {
             max = digit
     }
 
-    File(outputName).bufferedWriter().use { writer ->
+    File(outputName).bufferedWriter().use { writer -> //O(n)
         for (digit in digits) {
             if (digit != max) {
                 writer.write("$digit")
