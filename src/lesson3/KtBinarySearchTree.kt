@@ -79,8 +79,59 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
      *
      * Средняя
      */
+    //трудоемкость: O (h), где  h - высота дерева
+    //ресурсоемкость O(1)
+
     override fun remove(element: T): Boolean {
-        TODO()
+        val (parent, node) = findParent(element)
+        when {
+            node == null || parent == null -> return false
+            node.left != null && node.right != null -> {
+                val (newParent, replaceNode) = findReplacementNode(node)
+                replaceNode.left = node.left
+                if (replaceNode != node.right) {
+                    newParent.left = replaceNode.right
+                    replaceNode.right = node.right
+                }
+                replaceParentLink(replaceNode, parent, node)
+            }
+            node.left == null && node.right == null -> replaceParentLink(null, parent, node)
+            node.right == null -> replaceParentLink(node.left, parent, node)
+            else -> replaceParentLink(node.right, parent, node)
+        }
+        size--
+        return true
+    }
+
+    private fun findParent(element: T): Pair<Node<T>?, Node<T>?> {
+        var parent = root
+        var node = root
+        while (node != null && element != node.value) { //O(h)
+            val comparison = element.compareTo(node.value)
+            parent = node
+            node = if (comparison < 0) node.left
+            else node.right
+        }
+        //if (node == null) parent = null
+        return Pair(parent, node)
+    }
+
+    private fun findReplacementNode(node: Node<T>): Pair<Node<T>, Node<T>> {
+        var nodeToReplace = node.right!!
+        var parent = node
+        while (nodeToReplace.left != null) {
+            parent = nodeToReplace
+            nodeToReplace = nodeToReplace.left!!
+        }
+        return Pair(parent, nodeToReplace)
+    }
+
+    private fun replaceParentLink(value: Node<T>?, parent: Node<T>, nodeToReplace: Node<T>) {
+        when {
+            root == nodeToReplace -> root = value
+            nodeToReplace == parent.right -> parent.right = value
+            else -> parent.left = value
+        }
     }
 
     override fun comparator(): Comparator<in T>? =
@@ -90,6 +141,22 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
         BinarySearchTreeIterator()
 
     inner class BinarySearchTreeIterator internal constructor() : MutableIterator<T> {
+
+        private val stack = Stack<Node<T>>()
+        private var current: Node<T>? = null
+
+        private fun initNodes(start: Node<T>?) { //O(h) h - высота дерева
+            var node = start
+            while (node != null) {
+                stack.push(node)
+                node = node.left
+            }
+        }
+
+        init {
+            initNodes(root)
+        }
+
 
         /**
          * Проверка наличия следующего элемента
@@ -101,10 +168,9 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
          *
          * Средняя
          */
-        override fun hasNext(): Boolean {
-            // TODO
-            throw NotImplementedError()
-        }
+        //трудоемкость: O(1)
+        //ресурсоемкость O(1)
+        override fun hasNext(): Boolean = stack.isNotEmpty()
 
         /**
          * Получение следующего элемента
@@ -119,10 +185,18 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
          *
          * Средняя
          */
+
+
+        //трудоемкость: O(h) h - высота дерева
+        //ресурсоемкость O(h)
+
         override fun next(): T {
-            // TODO
-            throw NotImplementedError()
+            if (!hasNext()) throw NotImplementedError()
+            current = stack.pop()
+            initNodes(current!!.right)
+            return current!!.value
         }
+
 
         /**
          * Удаление предыдущего элемента
@@ -136,9 +210,14 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
          *
          * Сложная
          */
+
+        // трудоемкость: O(h)
+        // ресурсоемкость: O(1)
+
         override fun remove() {
-            // TODO
-            throw NotImplementedError()
+            if (current == null) throw IllegalStateException()
+            remove(current!!.value)
+            current = null
         }
 
     }

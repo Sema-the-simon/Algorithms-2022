@@ -161,7 +161,34 @@ abstract class AbstractBinarySearchTreeTest {
                 )
             }
             println("All clear!")
+
+
+            //My tests
+
+            val testSet = mutableSetOf<Int>()
+            val myBinarySet = create()
+
+            for (i in 0..100) {
+                testSet.add(i)
+                myBinarySet.add(i)
+            }
+            for (i in 0..25) {
+                val randomDigit = (15..65).random()
+                println("Initial set: $testSet")
+
+                testSet.remove(randomDigit)
+                myBinarySet.remove(randomDigit)
+
+                println("expected: $testSet")
+                println("Removing element $randomDigit")
+                assertEquals(testSet, myBinarySet)
+
+                testSet.add(randomDigit)
+                myBinarySet.add(randomDigit)
+            }
+            println("Working Good!")
         }
+
     }
 
     protected fun doIteratorTest() {
@@ -204,6 +231,38 @@ abstract class AbstractBinarySearchTreeTest {
                 binaryIter.next()
             }
             println("All clear!")
+
+
+            //my tests
+
+            val testSet = TreeSet<Int>()
+            for (i in 1..50) {
+                testSet.add(random.nextInt(1000))
+            }
+
+            println("expected: $testSet")
+            val myBinarySet = create()
+
+            assertFalse(
+                myBinarySet.iterator().hasNext(),
+                "Iterator of an empty tree should not have any next elements."
+            )
+
+            for (element in testSet) {
+                myBinarySet += element
+            }
+
+            val myIterator1 = myBinarySet.iterator()
+            val myIterator2 = myBinarySet.iterator()
+            println("Checking if calling hasNext() changes the state of the iterator...")
+            while (iterator1.hasNext()) {
+                assertEquals(
+                    iterator2.next(), iterator1.next(),
+                    "Calling BinarySearchTreeIterator.hasNext() changes the state of the iterator."
+                )
+            }
+
+            println("Working GOOD!")
         }
     }
 

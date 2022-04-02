@@ -141,7 +141,7 @@ fun longestCommonSubstring(first: String, second: String): String {
 fun calcPrimesNumber(limit: Int): Int {
     if (limit <= 1) return 0
     val sqrLimit = sqrt(limit.toDouble()).toInt()
-    val isPrime: Array<Boolean> = Array(limit + 1) { true }
+    val isPrime = BooleanArray(limit + 1) { true }
     isPrime[0] = false
     isPrime[1] = false
     var result = isPrime.size - 2
