@@ -1,6 +1,7 @@
 package lesson4
 
 import java.util.*
+import kotlin.collections.ArrayDeque
 
 /**
  * Префиксное дерево для строк
@@ -70,8 +71,42 @@ class KtTrie : AbstractMutableSet<String>(), MutableSet<String> {
      *
      * Сложная
      */
-    override fun iterator(): MutableIterator<String> {
-        TODO()
-    }
+    override fun iterator(): MutableIterator<String> = TrieIterator()
 
+    inner class TrieIterator internal constructor() : MutableIterator<String> {
+
+        private val queue = ArrayDeque<String>()
+        private var current: String? = null
+
+        private fun initStack(node: Node, resultStr: String) { //O(n) n = size - кол-во.
+            for ((char, child) in node.children) {
+                if (char == 0.toChar()) queue.addLast(resultStr)
+                else initStack(child, resultStr + char)
+            }
+        }
+
+        init {
+            initStack(root, "")
+        }
+
+        //трудоемкость: O(1)
+        //ресурсоемкость O(1)
+        override fun hasNext(): Boolean = queue.isNotEmpty()
+
+        //трудоемкость: O(1)
+        //ресурсоемкость O(1)
+        override fun next(): String {
+            if (!hasNext()) throw NoSuchElementException()
+            current = queue.removeFirst()
+            return current!!
+        }
+
+        // трудоемкость: O(h * log(n)) h - высота дерева, n - размер алфавита
+        // ресурсоемкость: O(1)
+        override fun remove() {
+            if (current == null) throw IllegalStateException()
+            remove(current)
+            current = null
+        }
+    }
 }

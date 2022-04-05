@@ -66,6 +66,25 @@ abstract class AbstractTrieTest {
             assertEquals(0, trie.size)
             assertFalse("some" in trie)
         }
+        // my tests
+
+        val myTrie = create()
+        assertEquals(0, myTrie.size)
+        assertFalse("some" in myTrie)
+
+        myTrie.add("параход")
+        assertEquals(1, myTrie.size)
+        assertTrue("параход" in myTrie)
+
+        assertFalse("пар" in myTrie)
+        myTrie.add("пар")
+        assertEquals(2, myTrie.size)
+        assertTrue("пар" in myTrie)
+
+        myTrie.remove("параход")
+        assertEquals(1, myTrie.size)
+        assertTrue("пар" in myTrie)
+        assertFalse("параход" in myTrie)
     }
 
     protected fun doIteratorTest() {
@@ -109,6 +128,17 @@ abstract class AbstractTrieTest {
                 trieIter.next()
             }
             println("All clear!")
+
+            // myTest
+            val myControlSet = sortedSetOf<String>("параход", "пар", "паром", "палец", "песня", "пень", "перец")
+            val myTrieSet = create()
+            for (word in myControlSet) {
+                myTrieSet += word
+            }
+            val myIterator = myTrieSet.iterator()
+            for (word in myControlSet) {
+                assertEquals(word, myIterator.next(), "")
+            }
         }
     }
 
@@ -171,6 +201,23 @@ abstract class AbstractTrieTest {
             }
             println("All clear!")
         }
-    }
 
+        // myTest
+        val myControlSet = sortedSetOf<String>("параход", "пар", "паром", "палец")
+        val myTrieSet = create()
+        for (word in myControlSet) {
+            myTrieSet += word
+        }
+        myControlSet.remove("пар")
+        val myIterator = myTrieSet.iterator()
+        while (myIterator.hasNext()) {
+            val element = myIterator.next()
+            if (element == "пар") myIterator.remove()
+        }
+        assertEquals(myControlSet.size, myTrieSet.size)
+        val myIterator2 = myTrieSet.iterator()
+        for (word in myControlSet) {
+            assertEquals(word, myIterator2.next())
+        }
+    }
 }

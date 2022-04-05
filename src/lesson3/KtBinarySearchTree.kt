@@ -80,6 +80,9 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
      * Средняя
      */
     //трудоемкость: O (h), где  h - высота дерева
+    //в худшем случае: h = size - количество узлов в дереве
+    //в лучшем: h = size/2 с округлением в большую сторону
+
     //ресурсоемкость O(1)
 
     override fun remove(element: T): Boolean {
@@ -142,7 +145,7 @@ class KtBinarySearchTree<T : Comparable<T>> : AbstractMutableSet<T>(), Checkable
 
     inner class BinarySearchTreeIterator internal constructor() : MutableIterator<T> {
 
-        private val stack = Stack<Node<T>>()
+        private val stack = ArrayDeque<Node<T>>()
         private var current: Node<T>? = null
 
         private fun initNodes(start: Node<T>?) { //O(h) h - высота дерева
