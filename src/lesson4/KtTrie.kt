@@ -30,6 +30,7 @@ class KtTrie : AbstractMutableSet<String>(), MutableSet<String> {
             current = current.children[char] ?: return null
         }
         return current
+
     }
 
     override fun contains(element: String): Boolean =
@@ -75,38 +76,106 @@ class KtTrie : AbstractMutableSet<String>(), MutableSet<String> {
 
     inner class TrieIterator internal constructor() : MutableIterator<String> {
 
-        private val queue = ArrayDeque<String>()
-        private var current: String? = null
+        /**
+         * храним текущую ветку в виде String
+         * подъем по ветке осуществляется с помощбю стэка
+         * запоминаем всех "родственников" текущего узла в стэк
+         * затем при необходимости начинаем спуск с нужного узла - родственника
+         * для пропуска нескольких узлов без детей используем пустые узлы с именем 1.toChar
+         **/
 
-        private fun initStack(node: Node, resultStr: String) { //O(n) n = size - кол-во.
-            for ((char, child) in node.children) {
-                if (char == 0.toChar()) queue.addLast(resultStr)
-                else initStack(child, resultStr + char)
+        private var curWord = ""
+        private val nodesStack = ArrayDeque<Pair<Char, Node>>()
+        private var curNode: Node? = null
+        private var curNodeName: Char? = null
+        private var removableString = ""
+
+        init {
+            findLift(root, null)
+            if (curNodeName != 0.toChar()) initWord()
+        }
+
+
+        /**
+         * функция для поиска самого "нижнего" и левого листа среди детей текущего
+         * запоминаем путь по которому двигаемся в curWord
+         *
+         * трудоемкость: O(h), где h - высота дерева
+         * ресурсоемкость: O(n), где n - кол-во узлов
+         **/
+        private fun findLift(node: Node, nodeName: Char?) {
+            curNode = node
+            curNodeName = nodeName
+            while (curNode!!.children.isNotEmpty()) {
+                if (curNodeName != 0.toChar() && curNodeName != null)
+                    curWord += curNodeName
+
+                nodesStack.addFirst(1.toChar() to Node())
+                val children = sortedMapOf<Char, Node>()
+                children.putAll(curNode!!.children)
+                curNodeName = children.firstKey()
+                curNode = children[curNodeName]!!
+
+                children.remove(children.firstKey())
+                addToNodesStack(children)
+
             }
         }
 
-        init {
-            initStack(root, "")
+        /**
+         * функция для добавления в стэк всех "родственников"
+         * все "родственники" - siblings добавляются в конец стэка в порядке возрастания
+         **/
+        private fun addToNodesStack(sortedMap: SortedMap<Char, Node>) {
+            val listOfPairs = sortedMap.toList()
+            for (i in listOfPairs.size - 1 downTo 0) {
+                nodesStack.addFirst(listOfPairs[i])
+            }
+        }
+
+        /**
+         * функция для поиска слудующего подходящего узла для next()
+         * подъем до нужного родителя с другими детьми затем
+         * вызов findLift() - спуск к листьяи дерева
+         *
+         * трудоемкость: O(h), где h - высота дерева
+         * ресурсоемкость: O(n), где n - кол-во узлов
+         **/
+        private fun initWord() {
+            while (nodesStack.isNotEmpty()) {
+                val pair = nodesStack.removeFirst()
+                curNodeName = pair.first
+                curNode = pair.second
+                if (curNodeName == 1.toChar()) {
+                    if (curWord.isNotEmpty())
+                        curWord = curWord.dropLast(1)
+                } else {
+                    findLift(curNode!!, curNodeName)
+                    if (curNodeName == 0.toChar()) break
+                }
+            }
         }
 
         //трудоемкость: O(1)
         //ресурсоемкость O(1)
-        override fun hasNext(): Boolean = queue.isNotEmpty()
+        override fun hasNext(): Boolean = curNodeName != null && curNodeName == 0.toChar()
 
-        //трудоемкость: O(1)
-        //ресурсоемкость O(1)
+        //трудоемкость: O(h), где h - высота дерева
+        //ресурсоемкость: O(n), где n - кол-во узлов
         override fun next(): String {
             if (!hasNext()) throw NoSuchElementException()
-            current = queue.removeFirst()
-            return current!!
+            val next = curWord
+            initWord()
+            removableString = next
+            return next
         }
 
         // трудоемкость: O(h * log(n)) h - высота дерева, n - размер алфавита
         // ресурсоемкость: O(1)
         override fun remove() {
-            if (current == null) throw IllegalStateException()
-            remove(current)
-            current = null
+            if (removableString.isEmpty()) throw IllegalStateException()
+            remove(removableString)
+            removableString = ""
         }
     }
 }

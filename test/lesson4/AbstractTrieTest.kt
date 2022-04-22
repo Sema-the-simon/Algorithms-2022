@@ -91,6 +91,27 @@ abstract class AbstractTrieTest {
         implementationTest { create().iterator().hasNext() }
         implementationTest { create().iterator().next() }
         val random = Random()
+
+        // myTest
+        val myTrieSet = create()
+        val myControlSet = sortedSetOf<String>("parahod", "par", "parom", "pales", "pesna", "pen", "peres")
+        for (word in myControlSet) {
+            myTrieSet.add(word)
+        }
+        val myIterator = myTrieSet.iterator()
+        for (word in myControlSet) {
+            assertEquals(word, myIterator.next(), "")
+        }
+
+        val myIterator2 = myTrieSet.iterator()
+        val myIterator3 = myTrieSet.iterator()
+        while (myIterator2.hasNext()) {
+            assertEquals(
+                myIterator3.next(), myIterator2.next(),
+                "Calling TrieIterator.hasNext() changes the state of the iterator."
+            )
+        }
+
         for (iteration in 1..100) {
             val controlSet = sortedSetOf<String>()
             for (i in 1..15) {
@@ -104,7 +125,7 @@ abstract class AbstractTrieTest {
                 "Iterator of an empty set should not have any next elements."
             )
             for (element in controlSet) {
-                trieSet += element
+                trieSet.add(element)
             }
             val iterator1 = trieSet.iterator()
             val iterator2 = trieSet.iterator()
@@ -129,16 +150,6 @@ abstract class AbstractTrieTest {
             }
             println("All clear!")
 
-            // myTest
-            val myControlSet = sortedSetOf<String>("параход", "пар", "паром", "палец", "песня", "пень", "перец")
-            val myTrieSet = create()
-            for (word in myControlSet) {
-                myTrieSet += word
-            }
-            val myIterator = myTrieSet.iterator()
-            for (word in myControlSet) {
-                assertEquals(word, myIterator.next(), "")
-            }
         }
     }
 
