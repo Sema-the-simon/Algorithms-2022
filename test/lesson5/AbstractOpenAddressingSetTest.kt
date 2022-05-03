@@ -77,10 +77,45 @@ abstract class AbstractOpenAddressingSetTest {
                 )
             }
         }
+        //My TESTS
+        val myOASet = create<String>(4)
+        assertEquals(0, myOASet.size)
+        assertFalse("some" in myOASet)
+
+        myOASet.add("параход")
+        myOASet.add("пар")
+        assertEquals(2, myOASet.size)
+
+        myOASet.remove("параход")
+        assertEquals(1, myOASet.size)
+
+        assertTrue("пар" in myOASet)
+        assertFalse("параход" in myOASet)
     }
 
     protected fun doIteratorTest() {
         val random = Random()
+
+        // myTest
+        val myOASet = create<String>(4)
+        val myControlSet = sortedSetOf<String>("parahod", "par", "parom", "pales", "pesna", "pen", "peres")
+        for (word in myControlSet) {
+            myOASet.add(word)
+        }
+        val myIterator = myOASet.iterator()
+        for (i in 0 until myControlSet.size) {
+            assertTrue(myIterator.next() in myControlSet, "")
+        }
+
+        val myIterator2 = myOASet.iterator()
+        val myIterator3 = myOASet.iterator()
+        while (myIterator2.hasNext()) {
+            assertEquals(
+                myIterator3.next(), myIterator2.next(),
+                "Calling TrieIterator.hasNext() changes the state of the iterator."
+            )
+        }
+
         for (iteration in 1..100) {
             val controlSet = mutableSetOf<String>()
             for (i in 1..15) {
@@ -123,6 +158,25 @@ abstract class AbstractOpenAddressingSetTest {
 
     protected fun doIteratorRemoveTest() {
         val random = Random()
+
+        // myTest
+        val myControlSet = sortedSetOf<String>("параход", "пар", "паром", "палец")
+        val myOASet = create<String>(3)
+        for (word in myControlSet) {
+            myOASet += word
+        }
+        myControlSet.remove("пар")
+        val myIterator = myOASet.iterator()
+        while (myIterator.hasNext()) {
+            val element = myIterator.next()
+            if (element == "пар") myIterator.remove()
+        }
+        assertEquals(myControlSet.size, myOASet.size)
+        val myIterator2 = myOASet.iterator()
+        for (i in 0 until myControlSet.size) {
+            assertTrue(myIterator2.next() in myControlSet, "")
+        }
+
         for (iteration in 1..100) {
             val controlSet = mutableSetOf<String>()
             val removeIndex = random.nextInt(15) + 1
